@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 
 from data_services import database
-from services.services_query import get_user_intent, verify_access, initialize_retriever, process_general_query
+from services.services_query import get_user_intent, verify_access, initialize_retriever, process_general_query,raise_L1_ticket, generate_response
 
 query_bp = Blueprint('query', __name__)
 
@@ -18,12 +18,12 @@ def handle_query():
         return response
     
     if user_intent == 'L1':
-        response = raise_L1_ticket()
+        response = raise_L1_ticket(user_id, user_query)
         return response
     
     if user_intent == 'ERP':
         if verify_access(user_id, departments):
-            response = get_query_response(user_intent, user_query, departments)
+            response = generate_response(user_query)
             return response
         else:
             return jsonify({"data": None, "error": "Unauthorized user"})
