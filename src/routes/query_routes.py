@@ -6,7 +6,7 @@ from services.services_query import get_user_intent, verify_access, initialize_r
 query_bp = Blueprint('query', __name__)
 
 
-query_bp.route('/query')
+query_bp.route('/process-query')
 def handle_query():
     user_id = request.session_data['user_id']
     user_query = request.params.get('query')
@@ -31,5 +31,3 @@ def handle_query():
     database.store_query_service(user_id, user_query, response['data'])
 
     return jsonify({"data": None, "error": "An error occurred!"})
-
-
