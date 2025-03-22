@@ -17,10 +17,10 @@ class QueryCollection(_Collection):
             return {'data': None, 'message': "User does not exist"}
         
         query_doc = {
-            "user_id": bson.ObjectId(user_id),
-            "query_text": query_text,
-            "response_text": response_text,
-            "timestamp": str(datetime.now())
+            "EmployeeID": bson.ObjectId(user_id),
+            "QueryText": query_text,
+            "ResponseText": response_text,
+            "Timestamp": str(datetime.now())
         }
         
         insert_result = self.insert_document(query_doc)
@@ -32,7 +32,7 @@ class QueryCollection(_Collection):
         query = self.find_document({'_id': bson.ObjectId(query_id)})
         if query is not None:
             query["_id"] = str(query["_id"])
-            query["user_id"] = str(query["user_id"])
+            query["EmployeeID"] = str(query["EmployeeID"])
             return {'data': query, 'message': "Query retrieved successfully"}
         return {'data': None, 'message': "Query does not exist"}
 
@@ -43,7 +43,7 @@ class QueryCollection(_Collection):
             return {'data': None, 'message': "User does not exist"}
         
         queries = self.find_documents({'user_id': bson.ObjectId(user_id)})
-        query_list = [{"query_id": str(q["_id"]), "query_text": q["query_text"], "response_text": q["response_text"], "timestamp": q["timestamp"]} for q in queries]
+        query_list = [{"query_id": str(q["_id"]), "QueryText": q["QueryText"], "ResponseText": q["ResponseText"], "Timestamp": q["Timestamp"]} for q in queries]
         
         return {'data': query_list, 'message': "Queries retrieved successfully"}
 
@@ -51,7 +51,7 @@ class QueryCollection(_Collection):
     # Function to retrieve all queries in the database
     def get_all_queries(self):
         queries = self.find_documents({})
-        query_list = [{"query_id": str(q["_id"]), "user_id": str(q["user_id"]), "query_text": q["query_text"], "response_text": q["response_text"], "timestamp": q["timestamp"]} for q in queries]
+        query_list = [{"query_id": str(q["_id"]), "EmployeeID": str(q["EmployeeID"]), "QueryText": q["QueryText"], "ResponseText": q["ResponseText"], "Timestamp": q["Timestamp"]} for q in queries]
         
         return {'data': query_list, 'message': "All queries retrieved successfully"}
 
@@ -62,7 +62,7 @@ class QueryCollection(_Collection):
         if not queries:
             return {'data': None, 'message': "No queries available"}
         
-        query_texts = [q["query_text"] for q in queries]
+        query_texts = [q["QueryText"] for q in queries]
         vectorizer = TfidfVectorizer()
         tfidf_matrix = vectorizer.fit_transform(query_texts)
         

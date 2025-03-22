@@ -9,8 +9,8 @@ auth_bp = Blueprint('auth', __name__)
 # Route to Login
 @auth_bp.route('/sign-in', methods=['POST'])
 def sign_in():
-    email = request.json.get('email', '').strip()
-    passwd = request.json.get('password', '').strip()
+    email = request.json.get('EmployeeEmail', '').strip()
+    passwd = request.json.get('EmployeePassword', '').strip()
 
     if email != '' and passwd != '':
         serv_res = database.user_sign_in_service(email, passwd)
@@ -35,15 +35,15 @@ def sign_out():
 # Create new user
 @auth_bp.route('/sign-up', methods=['POST'])
 def new_user():
-    email = request.json.get('email', '').strip()
-    passwd = request.json.get('password', '').strip()
+    email = request.json.get('EmployeeEmail', '').strip()
+    passwd = request.json.get('EmployeePassword', '').strip()
 
     if email != '' and passwd != '':
         serv_res = database.user_sign_up_service(email, passwd)
         if serv_res['data'] is None:
             return jsonify(serv_res)
         
-        user_id = serv_res['data']['user_id']
+        user_id = serv_res['data']['EmployeeID']
         serv_res = database.create_session_service(user_id)
         return jsonify(serv_res)
 
@@ -54,5 +54,5 @@ def new_user():
 @auth_bp.route('/get-user', methods=['GET'])
 @session_required
 def get_user():
-    serv_res = database.get_user_service(request.session_data['user_id'])
+    serv_res = database.get_user_service(request.session_data['EmployeeID'])
     return jsonify(serv_res)
