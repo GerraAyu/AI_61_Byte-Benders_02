@@ -35,18 +35,18 @@ class SessionCollection(_Collection):
         session['_id'] = session_id
 
         # Update user document with new session ID
-        self.user_col.update_document({'_id': bson.ObjectId(user_id)}, {"$set": {"session_id": session_id}}) 
+        self.user_col.update_document({'_id': bson.ObjectId(user_id)}, {"$set": {"SessionID": session_id}}) 
 
         return {'data': session, 'message': "Session created successfully"}
 
 
     # Function to validate a session
     def validate_session(self, session_token):
-        session = self.find_document({"session_token": session_token})
+        session = self.find_document({"SessionToken": session_token})
         if session is None:
             return {'data': None, 'message': "Invalid session token"}
         
-        expiration_time = datetime.strptime(session["expires_at"], "%Y-%m-%d %H:%M:%S.%f")
+        expiration_time = datetime.strptime(session["ExpiresAt"], "%Y-%m-%d %H:%M:%S.%f")
         if datetime.now() >= expiration_time:
             self.remove_document({"_id": session["_id"]})
             return {'data': None, 'message': "Session has expired"}
@@ -56,7 +56,7 @@ class SessionCollection(_Collection):
 
     # Function to delete a session
     def delete_session(self, session_token):
-        session = self.find_document({"session_token": session_token})
+        session = self.find_document({"SessionToken": session_token})
         if not self._check_document_exists(session, "Session"):
             return {'data': None, 'message': "Invalid session token"}
 
@@ -72,10 +72,10 @@ class SessionCollection(_Collection):
 
         session_list = [
             {
-                "session_id": str(session["_id"]),
-                "session_token": session["session_token"],
-                "created_at": session["created_at"],
-                "expires_at": session["expires_at"],
+                "SessionID": str(session["_id"]),
+                "SessionToken": session["SessionToken"],
+                "CreatedAt": session["CreatedAt"],
+                "ExpiresAt": session["ExpiresAt"],
             }
             for session in sessions
         ]

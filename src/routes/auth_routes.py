@@ -35,13 +35,8 @@ def sign_out():
 # Create new user
 @auth_bp.route('/sign-up', methods=['POST'])
 def new_user():
-<<<<<<< HEAD
     email = request.json.get('EmployeeEmail', '').strip()
     passwd = request.json.get('EmployeePassword', '').strip()
-=======
-    email = request.json.get('email', '').strip()
-    passwd = request.json.get('password', '').strip()
->>>>>>> 646a3effdd45a932d29f7232bd9755d84bb1ea4a
 
     if email != '' and passwd != '':
         serv_res = database.user_sign_up_service(email, passwd)
