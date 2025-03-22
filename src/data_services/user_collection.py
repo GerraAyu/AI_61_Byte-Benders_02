@@ -15,26 +15,11 @@ class UserCollection(_Collection):
             return {'data': None, 'message': "User with this email already exists"}
 
         user_doc = {
-            'EmployeeID': user['EmployeeID'],
-            'EmployeeName': user['EmployeeName'],
-            'Department': user['Department'],
-            'JobTitle': user['JobTitle'],
-            'AccessLevel': user['AccessLevel'],
-            'SalesAccess': user['SalesAccess'],
-            'PlanningAccess': user['PlanningAccess'],
-            'PurchaseAccess': user['PurchaseAccess'],
-            'StoresAccess': user['StoresAccess'],
-            'ProductionAccess': user['ProductionAccess'],
-            'MaintenanceAccess': user['MaintenanceAccess'],
-            'QualityAccess': user['QualityAccess'],
-            'DispatchAccess': user['DispatchAccess'],
-            'HRAccess': user['HRAccess'],
-            'AccountsAccess': user['AccountsAccess'],
-            'SettingsAccess': user['SettingsAccess'],
-            'EmployeeEmail': user['EmployeeEmail'],
-            'EmployeePassword': hashpw(user['EmployeePassword'].encode('utf-8'), gensalt()),
-            'EmployeeIsAdmin': user.get('EmployeeIsAdmin', False),
-            'JoinedAt': str(datetime.now())
+            "email": user["email"],
+            "password": hashpw(user["password"].encode("utf-8"), gensalt()),
+            "chats": [],
+            "is_admin": False,
+            "joined_at": str(datetime.now())
         }
 
         insert_result = self.insert_document(user_doc)
@@ -43,7 +28,7 @@ class UserCollection(_Collection):
 
     # Function to retrieve a user
     def retrieve_user(self, email, passwd):
-        user = self.find_document({'EmployeeEmail': email})
+        user = self.find_document({'email': email})
         if user is not None:
             if checkpw(passwd.encode("utf-8"), user["EmployeePassword"]):
                 del user["EmployeePassword"]
