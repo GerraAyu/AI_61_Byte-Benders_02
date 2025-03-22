@@ -6,7 +6,7 @@ from .query_collection import QueryCollection
 from .session_collection import SessionCollection
 
 # Initialize collections
-cluster_manager = ClusterManager(config.MONGO_URI)
+cluster_manager = ClusterManager(config.MONGODB_URI)
 user_col = UserCollection(cluster_manager.get_collection(config.DB, config.USER_COLLECTION))
 query_col = QueryCollection(cluster_manager.get_collection(config.DB, config.QUERY_COLLECTION), user_col)
 session_col = SessionCollection(cluster_manager.get_collection(config.DB, config.SESSION_COLLECTION), user_col)
@@ -18,8 +18,8 @@ def user_sign_in_service(email, passwd):
 
 
 # User Sign-Up Service
-def user_sign_up_service(user):
-    return user_col.create_user(user)
+def user_sign_up_service(email, passwd):
+    return user_col.create_user({'email': email, 'password': passwd})
 
 
 # Create Session Service
