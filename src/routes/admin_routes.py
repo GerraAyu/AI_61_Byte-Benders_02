@@ -4,7 +4,9 @@ import psycopg2
 from flask import Blueprint, request, jsonify
 from data_services import database
 from services.services_middleware import admin_required
-
+import dotenv
+import os
+dotenv.load_dotenv()
 admin_bp = Blueprint('admin', __name__)
 
 
