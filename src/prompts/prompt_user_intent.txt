@@ -12,6 +12,8 @@ If no specific department is mentioned, return ('General', []).
 If the intent is unclear, seek clarification before proceeding.
 Always respond with ('L1', []) or ('General', []) or ('ERP', [list_of_departments]) if ERP data is requested.
 
+*Do not provide any Explanation*
+
 Departments:
 1. Sales:
 SalesID, CustomerID, ProductID, ProductName, QuotationID, SalesOrderDate, InvoiceID, InvoiceDate, DispatchDate, Quantity, UnitPrice, NPD_Stage, NPD_LaunchDate

@@ -1,6 +1,7 @@
 import re
 import faiss
 import config
+import bson
 import pdfplumber
 
 from data_services.database import user_col
@@ -16,18 +17,13 @@ from langchain.chains import StuffDocumentsChain, LLMChain
 from langchain_community.docstore.in_memory import InMemoryDocstore
 from langchain.text_splitter import SentenceTransformersTokenTextSplitter
 
-
-import psycopg2
-import os
-from dotenv import load_dotenv
-from langchain_mistralai import ChatMistralAI
 import smtplib
+import psycopg2
+from dotenv import load_dotenv
 from email.message import EmailMessage
-import dotenv
-dotenv.load_dotenv()
 
+load_dotenv()
 
-Supabase_URL = os.getenv("SUPABASE_URL")
 
 # Initialize model and tools
 model = SentenceTransformer('all-MiniLM-L6-v2')
@@ -73,18 +69,18 @@ def process_general_query(query, retriever):
 
 
 def verify_access(user_id, departments):
-    user = user_col.find_one(
+    user = user_col.find_document(
         {
-            'EmployeeID' : user_id
+            '_id' : bson.ObjectId(user_id)
         }
     )
     return all([user.get(dep + "Access") for dep in departments])
 
 
 def raise_L1_ticket(user_id,query):
-    user= user_col.find_one(
+    user = user_col.find_document(
             {
-                'EmployeeID' : user_id
+                '_id' : bson.ObjectId(user_id)
             }
         )
     user_details = {
@@ -112,41 +108,36 @@ def raise_L1_ticket(user_id,query):
 
 
 def generate_response(query):
+    query = query_llm(query)
+    data = execute_sql(query[0].strip())
+    if len(str(data)) > 10000: 
+        data = data[:5]  
 
-        query = query_llm(query) 
-        data = execute_sql(query.strip())
-        if len(str(data)) > 10000: 
-            data = data[:5]  
-
-        prompt = f""" 
-        You are an **ERP Support Assistant** Chatbot for employees at a company.
-        Your goal is to **help employees quickly and accurately** with their ERP-related queries.
+    prompt = f""" 
+    You are an **ERP Support Assistant** Chatbot for employees at a company.
+    Your goal is to **help employees quickly and accurately** with their ERP-related queries.
         
-        **Company ERP Data Available:** 
-        {data}
+    **Company ERP Data Available:** 
+    {data}
         
-        **Employee Query:** {query}
+    **Employee Query:** {query}
         
-        **Your Response Guidelines:**
-        - **Be professional and concise** while being friendly.
-        - **Provide direct answers** based on the ERP data.
-        - If the data is missing or incomplete, **guide the employee on the next steps**.
-        - If escalation is needed, **inform the employee that an L1 support ticket has been created**.
-        **If the employee asks a question which is not regarding data then please give the subject to the email to be sent to L1 support ticket**
+    **Your Response Guidelines:**
+    - **Be professional and concise** while being friendly.
+    - **Provide direct answers** based on the ERP data.
+    - If the data is missing or incomplete, **guide the employee on the next steps**.
+    - If escalation is needed, **inform the employee that an L1 support ticket has been created**.
+    **If the employee asks a question which is not regarding data then please give the subject to the email to be sent to L1 support ticket**
 
-        **Now, respond to the employee's question clearly and helpfully.**"""
+    **Now, respond to the employee's question clearly and helpfully.**"""
 
-        response = large_model.invoke(prompt)
-
-        return response.content
+    response = large_model.invoke(prompt)
+    return response.content
     
 
 def get_all_table_schemas():
     try:
-       
-        conn = psycopg2.connect(
-            Supabase_URL
-        )
+        conn = psycopg2.connect(config.SUPABASE_URL)
 
         cur = conn.cursor()
         cur.execute("""
@@ -156,8 +147,8 @@ def get_all_table_schemas():
         """)
         tables = cur.fetchall()
         schema = {}
-        if tables:
         
+        if tables:
             for table in tables:
                 table_name = table[0]
                 
@@ -186,7 +177,6 @@ def get_all_table_schemas():
 
 
 def query_llm(query):
-    
     prompt = f"""
     Your task is to write a SQL query that gives output for the following question:{query}
     using the schema {get_all_table_schemas()}
@@ -202,16 +192,14 @@ def query_llm(query):
     """
 
     response = large_model.invoke(prompt)
-    return response.content
+    return response.content.splitlines()[1:-1]
 
 
 
 def execute_sql(query):
     data = []
     try:
-        conn = psycopg2.connect(
-            Supabase_URL
-        )
+        conn = psycopg2.connect(config.SUPABASE_URL)
 
         cur = conn.cursor()
         
@@ -227,24 +215,22 @@ def execute_sql(query):
     except Exception as e:
         print(f"An error occurred: {e}")
 
+
 def send_email(to_email, subject, body):
-    EMAIL_ADDRESS = "lintosaji.1990@gmail.com"
     try:
-       
         msg = EmailMessage()
-        msg['From'] = EMAIL_ADDRESS
+        msg['From'] = config.EMAIL_ADDRESS
         msg['To'] = to_email
         msg['Subject'] = subject
         msg.set_content(body)
 
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:  
-            smtp.login(EMAIL_ADDRESS, "fslr ahai cdhy uzfw")
+            smtp.login(config.EMAIL_ADDRESS, "fslr ahai cdhy uzfw")
             smtp.send_message(msg)
 
         print(f"Email sent successfully to {to_email}!")
     except Exception as e:
         print(f"An error occurred while sending the email: {e}")
-
 
 
 def preprocess_text(text):
@@ -282,5 +268,3 @@ def initialize_retriever():
     # Create retriever
     vector_store = FAISS(embedding_function=gen_embeddings, index=index, docstore=docstore, index_to_docstore_id=index_to_docstore_id)
     return vector_store.as_retriever()
-
-

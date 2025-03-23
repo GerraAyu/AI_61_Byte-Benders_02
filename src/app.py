@@ -10,7 +10,7 @@ app = Flask(__name__)
 app.register_blueprint(admin_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(session_bp)
-app.register_blueprint(query_bp)
+app.register_blueprint(query_bp, url_prefix='/api')
 app.register_blueprint(faq_bp)
 
 if __name__ == '__main__':

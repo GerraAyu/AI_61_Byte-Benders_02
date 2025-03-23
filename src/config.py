@@ -7,6 +7,8 @@ USER_COLLECTION = 'Employees'
 SESSION_COLLECTION = 'Sessions'
 QUERY_COLLECTION = 'Queries'
 FAQ_COLLECTION = 'FAQ'
+EMAIL_ADDRESS = "lintosaji.1990@gmail.com"
+SUPABASE_URL = "postgresql://postgres.chduybdjpvedaveezdbf:Lintomon2003*@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres"
 
 MISTRAL_SMALL = 'mistral-small-2402'
 MISTRAL_LARGE = 'mistral-large-latest'

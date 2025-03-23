@@ -1,12 +1,10 @@
-import os
+import config
 import psycopg2
 
 from flask import Blueprint, request, jsonify
 from data_services import database
 from services.services_middleware import admin_required
-import dotenv
-import os
-dotenv.load_dotenv()
+
 admin_bp = Blueprint('admin', __name__)
 
 
@@ -15,19 +13,16 @@ admin_bp = Blueprint('admin', __name__)
 @admin_required
 def get_collection_data():
     collections = [
-        'Sales_NPD', 'Stores', 'Maintenance', 'Purchase', 'Settings',
-        'Employees', 'HR_Admin', 'Production', 'Dispatch_Logistics',
-        'Quality', 'Accounts_Finance', 'Planning'
+        'sales', 'store', 'maintenance', 'purchase', 'settings',
+        'employees', 'hr', 'production', 'dispatch',
+        'quality', 'finance', 'planning'
     ]
     
     collection_name = request.json.get('collection_name', '').strip()
     if collection_name not in collections:
         return jsonify({"data": None, "message": "Invalid collection name"}), 400
-    Supabase_URL = os.getenv("SUPABASE_URL")
 
-    conn = psycopg2.connect(
-            Supabase_URL
-        )
+    conn = psycopg2.connect(config.SUPABASE_URL)
 
     cursor = conn.cursor()
 
