@@ -3,7 +3,9 @@ import config
 from flask import Blueprint, request, jsonify
 from data_services import database
 from services.services_middleware import admin_required
-
+import dotenv
+import os
+dotenv.load_dotenv()
 admin_bp = Blueprint('admin', __name__)
 
 
@@ -20,8 +22,18 @@ def get_collection_data():
     collection_name = request.json.get('collection_name', '').strip()
     if collection_name not in collections:
         return jsonify({"data": None, "message": "Invalid collection name"}), 400
+    Supabase_URL = os.getenv("SUPABASE_URL")
 
-    collection_data = database.cluster_manager.get_collection(config.DB, collection_name).find({})
+    conn = psycopg2.connect(
+            Supabase_URL
+        )
+
+    cursor = conn.cursor()
+
+    cursor.execute(f"SELECT * FROM {collection_name}")
+    collection_data = cursor.fetchall()
+    cursor.close()
+    conn.close()
     data_list = [doc for doc in collection_data]
 
     return jsonify({"data": data_list, "message": f"Data retrieved from {collection_name}"})
