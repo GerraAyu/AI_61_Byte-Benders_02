@@ -34,10 +34,10 @@ def admin_required(f):
         if session_result['data'] is None:
             return jsonify(session_result), 401  # Invalid or expired session
 
-        user_id = session_result['data']['user_id']
+        user_id = session_result['data']['EmployeeID']
         user_result = user_col.get_user_by_id(user_id)
 
-        if user_result['data'] is None or not user_result['data'].get('is_admin', False):
+        if user_result['data'] is None or not user_result['data'].get('EmployeeIsAdmin', False):
             return jsonify({'data': None, 'message': 'Admin access required'}), 403
         
         request.session_data = session_result['data']

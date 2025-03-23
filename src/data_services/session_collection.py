@@ -57,9 +57,6 @@ class SessionCollection(_Collection):
     # Function to delete a session
     def delete_session(self, session_token):
         session = self.find_document({"SessionToken": session_token})
-        if not self._check_document_exists(session, "Session"):
-            return {'data': None, 'message': "Invalid session token"}
-
         self.remove_document({"_id": session["_id"]})
         return {'data': True, 'message': "Session deleted successfully"}
 

@@ -28,18 +28,17 @@ def sign_in():
 @auth_bp.route('/sign-out', methods=['POST'])
 @session_required
 def sign_out():
-    serv_res = database.delete_session_service(request.session_data['token'])
+    serv_res = database.delete_session_service(request.session_data['SessionToken'])
     return jsonify(serv_res)
 
 
 # Create new user
 @auth_bp.route('/sign-up', methods=['POST'])
 def new_user():
-    email = request.json.get('EmployeeEmail', '').strip()
-    passwd = request.json.get('EmployeePassword', '').strip()
+    user = request.json
 
-    if email != '' and passwd != '':
-        serv_res = database.user_sign_up_service(email, passwd)
+    if user['EmployeeEmail'] != '' and user['EmployeePassword'] != '':
+        serv_res = database.user_sign_up_service(user)
         if serv_res['data'] is None:
             return jsonify(serv_res)
         

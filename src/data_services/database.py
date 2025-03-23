@@ -2,12 +2,14 @@ import config
 
 from .cluster_manager import ClusterManager
 from .user_collection import UserCollection
+from .faq_collection import FAQCollection
 from .query_collection import QueryCollection
 from .session_collection import SessionCollection
 
 # Initialize collections
 cluster_manager = ClusterManager(config.MONGO_URI)
 user_col = UserCollection(cluster_manager.get_collection(config.DB, config.USER_COLLECTION))
+faq_col = FAQCollection(cluster_manager.get_collection(config.DB, config.FAQ_COLLECTION))
 query_col = QueryCollection(cluster_manager.get_collection(config.DB, config.QUERY_COLLECTION), user_col)
 session_col = SessionCollection(cluster_manager.get_collection(config.DB, config.SESSION_COLLECTION), user_col)
 
@@ -26,7 +28,7 @@ def user_sign_up_service(user):
 def create_session_service(user_id):
     session = session_col.create_session(user_id).get('data', None)
     if session is not None:
-        del session["_id"], session["user_id"]
+        del session["_id"], session["EmployeeID"]
         return {"data": {"session": session}, "message": "Session created successfully"}
     return {"data": None, "message": "Failed to create session"}
 
@@ -67,3 +69,14 @@ def get_all_queries_service():
 # Get Frequent Queries Service
 def get_frequent_queries_service(threshold=0.8):
     return query_col.get_frequent_queries(threshold)
+
+
+def add_to_faq_service(query_text, response_text):
+    if not query_text or not response_text:
+        return {"data": None, "message": "Query text and response text cannot be empty"}
+
+    return faq_col.add_to_faqs(query_text, response_text)
+
+
+def list_all_faqs_service():
+    return faq_col.get_all_faqs()

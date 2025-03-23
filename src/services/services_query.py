@@ -9,11 +9,11 @@ from sentence_transformers import SentenceTransformer
 from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
 
 from langchain.schema import Document
-from langchain.vectorstores import FAISS
 from langchain.prompts import PromptTemplate
 from langchain_mistralai import ChatMistralAI
-from langchain.docstore import InMemoryDocstore
+from langchain_community.vectorstores import FAISS
 from langchain.chains import StuffDocumentsChain, LLMChain
+from langchain_community.docstore.in_memory import InMemoryDocstore
 from langchain.text_splitter import SentenceTransformersTokenTextSplitter
 
 

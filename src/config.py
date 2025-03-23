@@ -6,6 +6,7 @@ MONGO_URI = os.environ.get('MONGO_URI', '')
 USER_COLLECTION = 'Employees'
 SESSION_COLLECTION = 'Sessions'
 QUERY_COLLECTION = 'Queries'
+FAQ_COLLECTION = 'FAQ'
 
 MISTRAL_SMALL = 'mistral-small-2402'
 MISTRAL_LARGE = 'mistral-large-latest'
